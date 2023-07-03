@@ -1,0 +1,31 @@
+sudo: required
+
+services:
+  - docker
+
+# building image for test suite
+before_all:
+  - docker build -t bixoloo/multicontainerclient -f ./client/Dockerfile.client.dev ./client
+
+# use image in before_all to run test suites
+# scripts are for running test suites
+scripts:
+  - docker run bixoloo/multicontainerclient npm test -- --coverage
+
+# building images for production for each of the services
+after_success:
+  - docker build -t bixoloo/multiclient ./client
+  - docker built -t bixoloo/multinginx ./nginx
+  - docker build -t bixoloo/multiserver ./server
+  - docker build -t bixoloo/multiworker ./worker
+  # push everything to docker hub
+
+  # 1. Login to docker CLI
+  # save the docker id and password on travis environment variable sections
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  # 2. Push image to docker hub
+  - docker push bixoloo/multiclient
+  - docker push bixoloo/multinginx
+  - docker push bixoloo/multiserver
+  - docker push bixoloo/multiworker
