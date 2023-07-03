@@ -1,0 +1,4 @@
+/client/node_modules
+/ngix/node_modules
+/server/node_modules
+/worker/node_modules
